@@ -1,56 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import MessagesDisplay from './components/MessagesDisplay';
-import MessageForm from './components/MessageForm';
-import AccountManagement from './components/AccountManagement';
+import React, { useEffect, useState } from "react";
+import MessagesDisplay from "./components/MessagesDisplay";
+import MessageForm from "./components/MessageForm";
+import AccountManagement from "./components/AccountManagement";
 
-import './App.css';
-import LogoImage from './secret-messages-logo.png';
-import MessagesContext from './contexts/MessagesContext';
-import AccountContext from './contexts/AccountContext';
+import "./App.css";
+import LogoImage from "./secret-messages-logo.png";
+import MessagesContext from "./contexts/MessagesContext";
+import AccountContext from "./contexts/AccountContext";
 
 // EXERCISE 4.1
-const hostURL = "https://localhost:3002";
+const hostURL =
+  process.env.NODE_ENV === "production"
+    ? "https://cfa-winter2025-dishitasoni-api.onrender.com"
+    : "https://localhost:3002";
 
-const apiSignup = hostURL+ "/signup";
-const apiLogin = hostURL+ "/login";
-const apiLogout = hostURL+ "/logout";
-const apiPostNew = hostURL+ "/message";
-const apiGetAll = hostURL+ "/";
-const apiUpdateOne = hostURL+ "/message/";
-const apiDeleteOne = hostURL+ "/message/";
+const apiSignup = hostURL + "/signup";
+const apiLogin = hostURL + "/login";
+const apiLogout = hostURL + "/logout";
+const apiPostNew = hostURL + "/message";
+const apiGetAll = hostURL + "/";
+const apiUpdateOne = hostURL + "/message/";
+const apiDeleteOne = hostURL + "/message/";
 
 const postSignupParams = {
-  headers: { 'Content-Type': 'application/json' },
-  method: 'POST',
-  credentials: 'include'
+  headers: { "Content-Type": "application/json" },
+  method: "POST",
+  credentials: "include",
 };
 const postLoginParams = {
-  headers: { 'Content-Type': 'application/json' },
-  method: 'POST',
-  credentials: 'include'
+  headers: { "Content-Type": "application/json" },
+  method: "POST",
+  credentials: "include",
 };
 const postLogoutParams = {
-  headers: { 'Content-Type': 'application/json' },
-  method: 'POST',
-  credentials: 'include'
+  headers: { "Content-Type": "application/json" },
+  method: "POST",
+  credentials: "include",
 };
 const postNewParams = {
-  headers: { 'Content-Type': 'application/json' },
-  method: 'POST',
-  credentials: 'include'
+  headers: { "Content-Type": "application/json" },
+  method: "POST",
+  credentials: "include",
 };
 const getAllParams = {
-  method: 'GET',
-  credentials: 'include'
-}
+  method: "GET",
+  credentials: "include",
+};
 const updateOneParams = {
-  headers: { 'Content-Type': 'application/json' },
-  method: 'PATCH',
-  credentials: 'include'
+  headers: { "Content-Type": "application/json" },
+  method: "PATCH",
+  credentials: "include",
 };
 const deleteOneParams = {
-  method: 'DELETE',
-  credentials: 'include'
+  method: "DELETE",
+  credentials: "include",
 };
 
 function App(props) {
@@ -62,7 +65,7 @@ function App(props) {
     try {
       const postSignupParamsWithBody = {
         ...postSignupParams,
-        body: JSON.stringify(user)
+        body: JSON.stringify(user),
       };
 
       const response = await fetch(apiSignup, postSignupParamsWithBody);
@@ -83,7 +86,7 @@ function App(props) {
     try {
       const postLoginParamsWithBody = {
         ...postLoginParams,
-        body: JSON.stringify(user)
+        body: JSON.stringify(user),
       };
 
       const response = await fetch(apiLogin, postLoginParamsWithBody);
@@ -133,17 +136,17 @@ function App(props) {
 
   async function newMessage(message) {
     try {
-      message.date = (new Date()).toISOString();
+      message.date = new Date().toISOString();
 
       const postNewParamsWithBody = {
         ...postNewParams,
-        body: JSON.stringify(message)
+        body: JSON.stringify(message),
       };
 
       const response = await fetch(apiPostNew, postNewParamsWithBody);
       if (response.status === 201) {
         if (message.secret === isSecret) {
-          showMessages([message, ...messages]);  
+          showMessages([message, ...messages]);
         }
       }
     } catch (error) {
@@ -164,17 +167,17 @@ function App(props) {
   }
   async function updateMessage(messageId, newMessage) {
     try {
-      const now = (new Date()).toISOString();
+      const now = new Date().toISOString();
 
       const response = await fetch(apiUpdateOne + messageId, {
         ...updateOneParams,
         body: JSON.stringify({
           message: newMessage,
-          date: now
-        })
+          date: now,
+        }),
       });
       if (response.status === 200) {
-        const message = messages.find(message => message._id === messageId);
+        const message = messages.find((message) => message._id === messageId);
         message.message = newMessage;
         message.date = now;
         showMessages([...messages]);
@@ -187,7 +190,9 @@ function App(props) {
     try {
       const response = await fetch(apiDeleteOne + messageId, deleteOneParams);
       if (response.status === 200) {
-        const messageIndex = messages.findIndex(message => message._id === messageId);
+        const messageIndex = messages.findIndex(
+          (message) => message._id === messageId
+        );
         messages.splice(messageIndex, 1);
         showMessages([...messages]);
       }
@@ -201,8 +206,7 @@ function App(props) {
       if (loggedInUser !== "") {
         getMessages("true");
       }
-    }
-    else {
+    } else {
       getMessages("false");
     }
   }, [props, loggedInUser]); // This will activate any time App itself gets re-rendered
@@ -212,8 +216,18 @@ function App(props) {
   }, []);
 
   return (
-    <AccountContext.Provider value={{loggedInUser, signupUser, loginUser, logoutUser}}>
-      <MessagesContext.Provider value={{messages, newMessage, getMessages, updateMessage, deleteMessage}}>
+    <AccountContext.Provider
+      value={{ loggedInUser, signupUser, loginUser, logoutUser }}
+    >
+      <MessagesContext.Provider
+        value={{
+          messages,
+          newMessage,
+          getMessages,
+          updateMessage,
+          deleteMessage,
+        }}
+      >
         <header>
           <nav id="branding">
             <img id="logo" src={LogoImage} alt="Secret Messages App" />
@@ -226,7 +240,7 @@ function App(props) {
           <MessageForm />
         </div>
         <footer>
-            <p>&copy; 2024 Secret Messages</p>
+          <p>&copy; 2024 Secret Messages</p>
         </footer>
       </MessagesContext.Provider>
     </AccountContext.Provider>
